@@ -83,7 +83,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 	// https://gist.github.com/anonymous/4397e4909c524c939bee#file-gistfile1-txt-L3
 	D3DKMT_WAITFORVERTICALBLANKEVENT we;
 	D3DKMT_OPENADAPTERFROMHDC oa;
-	oa.hDc = GetDC(NULL);  // NULL = primary display monitor
+	oa.hDc = GetDC(hwnd);
 	NTSTATUS result = D3DKMTOpenAdapterFromHdc(&oa);
 	if (result == STATUS_INVALID_PARAMETER) {
 		MessageBox(NULL, "D3DKMTOpenAdapterFromHdc function received an invalid parameter.", "Error!",
