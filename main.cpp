@@ -1,5 +1,7 @@
 #include <windows.h>
 #include <D3dkmthk.h>
+#include <chrono>
+using namespace std::chrono;
 
 const char g_szClassName[] = "desktopBFIwindowClass";
 bool quitProgram = false;
@@ -97,10 +99,20 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 	we.hDevice = 0;
 	we.VidPnSourceId = oa.VidPnSourceId;
 
+	// Sets up for D3DKTGetScanLine(), to poll for VBlank exit
+	D3DKMT_GETSCANLINE gsl;
+	gsl.hAdapter = oa.hAdapter;
+	gsl.VidPnSourceId = oa.VidPnSourceId;
+
 	while (!quitProgram)
 	{
 		result = D3DKMTWaitForVerticalBlankEvent(&we);
-		Sleep(2);
+		do {
+			high_resolution_clock::time_point pollTime = high_resolution_clock::now() + microseconds(100);
+			while (pollTime < high_resolution_clock::now())
+				{}
+			result = D3DKMTGetScanLine(&gsl);
+		} while (gsl.InVerticalBlank == TRUE);
 		frameVisible = !frameVisible;
 		// Window transparency: 0 is invisible, 255 is opaque
 		SetLayeredWindowAttributes(hwnd, 0, frameVisible * 255, LWA_ALPHA);
